@@ -1,0 +1,79 @@
+{
+    // ==========================================
+    // Inlay Hints Settings
+    // ==========================================
+    "editor.inlayHints.fontFamily": "JetBrains Mono",
+    "editor.inlayHints.fontSize": 11,
+    // ==========================================
+    // Workbench Color Overrides (Inlay Hints)
+    // ==========================================
+    "workbench.colorCustomizations": {
+        "[Default Dark+]": {
+            "editorInlayHint.foreground": "#868686f0",
+            "editorInlayHint.background": "#3d3d3d48",
+            "editorInlayHint.typeForeground": "#fdb6fdf0",
+            "editorInlayHint.parameterForeground": "#fdb6fdf0"
+        }
+    },
+    // ==========================================
+    // Semantic Highlighting Customizations
+    // ==========================================
+    "editor.semanticTokenColorCustomizations": {
+        "rules": {
+            // Override default underline behavior for mutable bindings
+            "*.mutable": {
+                "fontStyle": ""
+            },
+            // Highlight unsafe operations across all themes
+            "operator.unsafe": "#ff6600",
+            "function.unsafe": "#ff6600",
+            "method.unsafe": "#ff6600"
+        },
+        // Theme-specific overrides example
+        "[Ayu Light]": {
+            "rules": {
+                "operator.unsafe": "#572300"
+            }
+        }
+    },
+    // ==========================================
+    // External Checkers & Build Configuration
+    // ==========================================
+    // Set to false if you are using an external background checker task (e.g. via cargo-watch with $rustc-watch)
+    "rust-analyzer.checkOnSave": true,
+    // ==========================================
+    // Runnable Environment Variables
+    // ==========================================
+    // Simple configuration (applies to all runnables):
+    // "rust-analyzer.runnables.extraEnv": {
+    //   "RUN_SLOW_TESTS": "1"
+    // },
+    // Advanced configuration with platform filtering and regex masks:
+    // "rust-analyzer.runnables.extraEnv": [
+    //     {
+    //         "platform": "win32",
+    //         "env": {
+    //             "APP_DATA": "windows specific data"
+    //         }
+    //     },
+    //     {
+    //         "platform": [
+    //             "linux"
+    //         ],
+    //         "env": {
+    //             "APP_DATA": "linux data"
+    //         }
+    //     },
+    //     {
+    //         "mask": "^test ",
+    //         "env": {
+    //             "APP_ID": "2"
+    //         }
+    //     },
+    //     {
+    //         "env": {
+    //             "APP_COMMON_DATA": "xxx"
+    //         }
+    //     }
+    // ]
+}
