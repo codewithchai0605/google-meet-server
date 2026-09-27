@@ -20,13 +20,10 @@ COPY Cargo.toml Cargo.lock ./
 COPY migrations ./migrations
 COPY src ./src
 
-# Prevent Render's limited build environment from spawning
-# too many simultaneous Rust/C++ compilation jobs.
-ENV CARGO_BUILD_JOBS=1
-ENV CMAKE_BUILD_PARALLEL_LEVEL=1
-ENV NINJAFLAGS=-j1
-
-RUN cargo build --release -j1 && \
+# Built by GitHub Actions, not on Render -- runners there have plenty of memory, so this
+# compiles at full parallelism rather than the single-core-pinned build Render's free tier
+# would have needed.
+RUN cargo build --release && \
     strip target/release/server
 
 # --- Runtime stage ----------------------------------------------------------
