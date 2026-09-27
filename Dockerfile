@@ -22,10 +22,12 @@ COPY src ./src
 
 # Prevent Render's limited build environment from spawning
 # too many simultaneous Rust/C++ compilation jobs.
-ENV CARGO_BUILD_JOBS=2
+ENV CARGO_BUILD_JOBS=1
+ENV CMAKE_BUILD_PARALLEL_LEVEL=1
+ENV NINJAFLAGS=-j1
 
-RUN cargo build --release \
-    && strip target/release/server
+RUN cargo build --release -j1 && \
+    strip target/release/server
 
 # --- Runtime stage ----------------------------------------------------------
 FROM debian:bookworm-slim AS runtime
