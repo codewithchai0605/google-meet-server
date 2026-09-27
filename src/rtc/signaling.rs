@@ -6,7 +6,7 @@ use dashmap::DashMap;
 use dashmap::DashSet;
 use mediasoup::prelude::*;
 use parking_lot::Mutex;
-use serde_json::json;
+use serde_json::{Value, json};
 use tokio::sync::mpsc;
 use uuid::Uuid;
 
@@ -131,10 +131,59 @@ pub async fn handle_socket(socket: WebSocket, state: AppState, params: WsConnect
             continue;
         };
 
-        let envelope: ClientEnvelope = match serde_json::from_str(&text) {
+        // Log at the socket boundary, before deserializing into a concrete action. This keeps
+        // the log useful for unknown/new actions and malformed client messages too.
+        let raw_event: Value = match serde_json::from_str(&text) {
+            Ok(event) => event,
+            Err(err) => {
+                tracing::warn!(
+                    meeting_code = %room.code,
+                    peer_id = %peer.id,
+                    user_id = %peer.user_id,
+                    raw_payload = %text,
+                    error = %err,
+                    "received invalid WebSocket JSON",
+                );
+                continue;
+            }
+        };
+
+        let event_name = raw_event
+            .get("action")
+            .and_then(Value::as_str)
+            .unwrap_or("<missing>")
+            .to_owned();
+        let request_id = raw_event.get("id").and_then(Value::as_u64);
+        let payload = raw_event.as_object().map(|fields| {
+            Value::Object(
+                fields
+                    .iter()
+                    .filter(|(key, _)| key.as_str() != "id" && key.as_str() != "action")
+                    .map(|(key, value)| (key.clone(), value.clone()))
+                    .collect(),
+            )
+        });
+
+        tracing::info!(
+            meeting_code = %room.code,
+            peer_id = %peer.id,
+            user_id = %peer.user_id,
+            event = %event_name,
+            request_id,
+            payload = ?payload,
+            "received WebSocket event",
+        );
+
+        let envelope: ClientEnvelope = match serde_json::from_value(raw_event) {
             Ok(e) => e,
             Err(err) => {
-                tracing::debug!(error = %err, "failed to parse client message");
+                tracing::warn!(
+                    meeting_code = %room.code,
+                    peer_id = %peer.id,
+                    event = %event_name,
+                    error = %err,
+                    "failed to parse WebSocket event",
+                );
                 continue;
             }
         };
