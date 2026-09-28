@@ -3,9 +3,6 @@ name: Build and push server image
 on:
   push:
     branches: [main]
-    paths:
-      - "./**"
-      - ".github/workflows/build-server.yml"
   workflow_dispatch: {} # lets you trigger a rebuild manually from the Actions tab
 
 env:
@@ -43,7 +40,13 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Trigger Render deploy
-        # Image-backed Render services don't auto-redeploy on a new registry push -- this is
-        # the documented way to close that loop from CI. RENDER_DEPLOY_HOOK_URL comes from the
-        # service's Settings tab in the Render dashboard.
-        run: curl -fsS "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+        # Image-backed Render services don't auto-redeploy on a registry push. Request the
+        # image tagged with this exact commit, rather than whichever image currently owns
+        # `latest`, so a deploy can never pick up an older build.
+        #
+        # The Render service must be image-backed and use
+        # ghcr.io/<owner>/<repo>:latest as its default image URL.
+        run: >-
+          curl -fsS --get
+          --data-urlencode "imgURL=ghcr.io/${{ github.repository }}:${{ github.sha }}"
+          "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
