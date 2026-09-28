@@ -11,13 +11,16 @@ use crate::error::{AppError, AppResult};
 use crate::state::AppState;
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RegisterRequest {
     pub email: String,
     pub password: String,
+    #[serde(alias = "display_name")]
     pub display_name: String,
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LoginRequest {
     pub email: String,
     pub password: String,

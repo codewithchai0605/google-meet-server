@@ -23,10 +23,13 @@ fn generate_code() -> String {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateMeetingRequest {
     pub title: Option<String>,
+    #[serde(alias = "max_participants")]
     #[serde(default = "default_max_participants")]
     pub max_participants: i16,
+    #[serde(alias = "waiting_room_enabled")]
     #[serde(default = "default_true")]
     pub waiting_room_enabled: bool,
 }
